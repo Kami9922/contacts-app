@@ -2,7 +2,7 @@ Implement Redux in Contacts app and typify
 
 - Add Store
 - Add contacts, favorites and groups reducers
-- Add contacts, favotrites, filteredContacts and group selectors
+- Add contacts, favorites, filteredContacts and group selectors
 - Add setContacts and setGroups actions with types
 - Add types to useDispatch, useSelector
 

@@ -1,3 +1,3 @@
-export * from './contactsReducer'
-export * from './/favoriteContactsReducer'
-export * from './groupContactsReducer'
+export * from './contactsSlice'
+export * from './favoritesSlice'
+export * from './groupsSlice'

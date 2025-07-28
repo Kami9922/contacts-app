@@ -1,14 +1,21 @@
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { GroupContactsCard } from 'src/components/GroupContactsCard'
-import { useAppSelector } from 'src/redux/hooks'
+import { useAppDispatch, useAppSelector } from 'src/redux/hooks'
 import { groupContactsSelector } from 'src/redux/selectors'
 import { GroupContactsDto } from 'src/types/dto/GroupContactsDto'
+import { fetchGroups } from '../redux/reducers'
 
 export const GroupListPage = memo(() => {
 	const groupContactsState: GroupContactsDto[] = useAppSelector(
 		groupContactsSelector
 	)
+	const dispatch = useAppDispatch()
+
+	useEffect(() => {
+		dispatch(fetchGroups())
+	}, [dispatch])
+
 	return (
 		<Row xxl={4}>
 			{groupContactsState.map((groupContacts) => (

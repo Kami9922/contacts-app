@@ -1,14 +1,15 @@
-import { createStore, combineReducers } from 'redux'
-import { contactsReducer } from './reducers/contactsReducer'
-import { groupsReducer } from './reducers/groupContactsReducer'
-import { favoritesReducer } from './reducers/favoriteContactsReducer'
+import { configureStore } from '@reduxjs/toolkit'
+import contactsReducer from './reducers/contactsSlice'
+import favoritesReducer from './reducers/favoritesSlice'
+import groupsReducer from './reducers/groupsSlice'
 
-const rootReducer = combineReducers({
-	contacts: contactsReducer,
-	favorites: favoritesReducer,
-	groups: groupsReducer,
+export const store = configureStore({
+	reducer: {
+		contacts: contactsReducer,
+		favorites: favoritesReducer,
+		groups: groupsReducer,
+	},
 })
 
-export const store = createStore(rootReducer)
-
-export type RootState = ReturnType<typeof rootReducer>
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch

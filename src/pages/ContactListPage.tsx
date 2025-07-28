@@ -2,7 +2,7 @@ import { memo, useState } from 'react'
 import { Col, Row, Spinner } from 'react-bootstrap'
 import { ContactCard } from 'src/components/ContactCard'
 import { FilterForm } from 'src/components/FilterForm'
-import { useGetContactsQuery, useGetGroupsQuery } from '../redux/contactsApi'
+import { useGetContactsQuery, useGetGroupsQuery } from '../store/contactsApi'
 
 export const ContactListPage = memo(() => {
 	const [filters, setFilters] = useState<{

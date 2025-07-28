@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { Col, Row, Spinner } from 'react-bootstrap'
 import { GroupContactsCard } from 'src/components/GroupContactsCard'
-import { useGetGroupsQuery } from '../redux/contactsApi'
+import { useGetGroupsQuery } from '../store/contactsApi'
 
 export const GroupListPage = memo(() => {
 	const { data: groups = [], isLoading } = useGetGroupsQuery()

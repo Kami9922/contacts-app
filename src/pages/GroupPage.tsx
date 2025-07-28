@@ -3,7 +3,7 @@ import { Alert, Col, Row } from 'react-bootstrap'
 import { useParams } from 'react-router-dom'
 import { GroupContactsCard } from 'src/components/GroupContactsCard'
 import { ContactCard } from 'src/components/ContactCard'
-import { useGetContactsQuery, useGetGroupsQuery } from 'src/redux/contactsApi'
+import { useGetContactsQuery, useGetGroupsQuery } from 'src/store/contactsApi'
 
 export const GroupPage = memo(() => {
 	const { groupId } = useParams<{ groupId: string }>()

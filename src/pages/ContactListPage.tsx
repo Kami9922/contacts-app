@@ -1,31 +1,52 @@
-import { memo, useEffect } from 'react'
-import { Col, Row } from 'react-bootstrap'
+import { memo, useState } from 'react'
+import { Col, Row, Spinner } from 'react-bootstrap'
 import { ContactCard } from 'src/components/ContactCard'
-import { FilterForm, FilterFormValues } from 'src/components/FilterForm'
-import { useAppDispatch, useAppSelector } from 'src/redux/hooks'
-import { filterContacts, fetchContacts, fetchGroups } from '../redux/reducers'
-import {
-	filteredContactsSelector,
-	groupContactsSelector,
-} from 'src/redux/selectors'
+import { FilterForm } from 'src/components/FilterForm'
+import { useGetContactsQuery, useGetGroupsQuery } from '../redux/contactsApi'
 
 export const ContactListPage = memo(() => {
-	const filteredContacts = useAppSelector(filteredContactsSelector)
-	const groupContactsState = useAppSelector(groupContactsSelector)
-	const dispatch = useAppDispatch()
+	const [filters, setFilters] = useState<{
+		name?: string
+		groupId?: string | null
+	}>({})
 
-	useEffect(() => {
-		dispatch(fetchContacts())
-		dispatch(fetchGroups())
-	}, [dispatch])
+	const { data: contacts = [], isLoading: contactsLoading } =
+		useGetContactsQuery()
+	const { data: groups = [], isLoading: groupsLoading } = useGetGroupsQuery()
 
-	const onSubmit = (fv: Partial<FilterFormValues>) => {
-		dispatch(
-			filterContacts({
-				name: fv.name,
-				groupId: fv.groupId,
-				groups: groupContactsState,
-			})
+	const handleSubmit = (
+		fv: Partial<{ name: string; groupId: string | null }>
+	) => {
+		setFilters({
+			name: fv.name,
+			groupId: fv.groupId,
+		})
+	}
+
+	const filteredContacts = contacts.filter((contact) => {
+		const nameMatch = filters.name
+			? contact.name.toLowerCase().includes(filters.name.toLowerCase())
+			: true
+
+		const groupMatch = filters.groupId
+			? groups.some(
+					(group) =>
+						group.id === filters.groupId &&
+						group.contactIds.includes(contact.id)
+			  )
+			: true
+
+		return nameMatch && groupMatch
+	})
+
+	if (contactsLoading || groupsLoading) {
+		return (
+			<div className='d-flex justify-content-center mt-5'>
+				<Spinner
+					animation='border'
+					variant='primary'
+				/>
+			</div>
 		)
 	}
 
@@ -33,9 +54,9 @@ export const ContactListPage = memo(() => {
 		<Row xxl={1}>
 			<Col className='mb-3'>
 				<FilterForm
-					groupContactsList={groupContactsState}
-					initialValues={{}}
-					onSubmit={onSubmit}
+					groupContactsList={groups}
+					initialValues={filters}
+					onSubmit={handleSubmit}
 				/>
 			</Col>
 			<Col>

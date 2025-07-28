@@ -1,15 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit'
-import contactsReducer from './reducers/contactsSlice'
-import favoritesReducer from './reducers/favoritesSlice'
-import groupsReducer from './reducers/groupsSlice'
+import { contactsApi } from './contactsApi'
+import filterReducer from './filterSlice'
 
 export const store = configureStore({
 	reducer: {
-		contacts: contactsReducer,
-		favorites: favoritesReducer,
-		groups: groupsReducer,
+		[contactsApi.reducerPath]: contactsApi.reducer,
+		filter: filterReducer,
 	},
+	middleware: (getDefaultMiddleware) =>
+		getDefaultMiddleware().concat(contactsApi.middleware),
 })
 
 export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch

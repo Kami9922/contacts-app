@@ -1,25 +1,39 @@
-import { useEffect, useState } from 'react'
-
-import { Col, Row } from 'react-bootstrap'
+import { Col, Row, Spinner, Alert } from 'react-bootstrap'
 import { useParams } from 'react-router-dom'
-import { ContactDto } from 'src/types/dto/ContactDto'
 import { ContactCard } from 'src/components/ContactCard'
 import { Empty } from 'src/components/Empty'
-import { useAppSelector } from 'src/redux/hooks'
-import { contactsSelector } from 'src/redux/selectors'
+import { useGetContactsQuery } from '../redux/contactsApi'
 
 export const ContactPage = () => {
-	const contacts: ContactDto[] = useAppSelector(contactsSelector)
 	const { contactId } = useParams<{ contactId: string }>()
-	const [contact, setContact] = useState<ContactDto>()
+	const { data: contacts = [], isLoading, isError } = useGetContactsQuery()
 
-	useEffect(() => {
-		setContact(() => contacts.find(({ id }) => id === contactId))
-	}, [contactId, contacts])
+	const contact = contacts.find((c) => c.id === contactId)
+
+	if (isLoading) {
+		return (
+			<div className='d-flex justify-content-center mt-5'>
+				<Spinner
+					animation='border'
+					variant='primary'
+				/>
+			</div>
+		)
+	}
+
+	if (isError) {
+		return (
+			<Alert
+				variant='danger'
+				className='mt-3'>
+				Ошибка загрузки данных контакта
+			</Alert>
+		)
+	}
 
 	return (
 		<Row xxl={3}>
-			<Col className={'mx-auto'}>
+			<Col className='mx-auto'>
 				{contact ? <ContactCard contact={contact} /> : <Empty />}
 			</Col>
 		</Row>

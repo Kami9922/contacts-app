@@ -1,27 +1,28 @@
-import { memo, useEffect } from 'react'
-import { Col, Row } from 'react-bootstrap'
+import { memo } from 'react'
+import { Col, Row, Spinner } from 'react-bootstrap'
 import { GroupContactsCard } from 'src/components/GroupContactsCard'
-import { useAppDispatch, useAppSelector } from 'src/redux/hooks'
-import { groupContactsSelector } from 'src/redux/selectors'
-import { GroupContactsDto } from 'src/types/dto/GroupContactsDto'
-import { fetchGroups } from '../redux/reducers'
+import { useGetGroupsQuery } from '../redux/contactsApi'
 
 export const GroupListPage = memo(() => {
-	const groupContactsState: GroupContactsDto[] = useAppSelector(
-		groupContactsSelector
-	)
-	const dispatch = useAppDispatch()
+	const { data: groups = [], isLoading } = useGetGroupsQuery()
 
-	useEffect(() => {
-		dispatch(fetchGroups())
-	}, [dispatch])
+	if (isLoading) {
+		return (
+			<div className='d-flex justify-content-center mt-5'>
+				<Spinner
+					animation='border'
+					variant='primary'
+				/>
+			</div>
+		)
+	}
 
 	return (
 		<Row xxl={4}>
-			{groupContactsState.map((groupContacts) => (
-				<Col key={groupContacts.id}>
+			{groups.map((group) => (
+				<Col key={group.id}>
 					<GroupContactsCard
-						groupContacts={groupContacts}
+						groupContacts={group}
 						withLink
 					/>
 				</Col>

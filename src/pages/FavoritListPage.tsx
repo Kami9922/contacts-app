@@ -4,7 +4,7 @@ import { ContactCard } from 'src/components/ContactCard'
 import {
 	useGetContactsQuery,
 	useGetInitialFavoritesQuery,
-} from '../store/contactsApi'
+} from '../store/contacts/api'
 
 export const FavoritListPage = memo(() => {
 	const { data: contacts = [], isLoading: contactsLoading } =

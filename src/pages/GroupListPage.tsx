@@ -1,12 +1,17 @@
-import { memo } from 'react'
+import { observer } from 'mobx-react-lite'
+import { useEffect } from 'react'
 import { Col, Row, Spinner } from 'react-bootstrap'
 import { GroupContactsCard } from 'src/components/GroupContactsCard'
-import { useGetGroupsQuery } from '../store/contacts/api'
+import { contactsStore } from '../store/contactsStore'
 
-export const GroupListPage = memo(() => {
-	const { data: groups = [], isLoading } = useGetGroupsQuery()
+export const GroupListPage = observer(() => {
+	useEffect(() => {
+		if (contactsStore.groups.length === 0 && !contactsStore.groupsLoading) {
+			contactsStore.fetchGroups()
+		}
+	}, [])
 
-	if (isLoading) {
+	if (contactsStore.groupsLoading) {
 		return (
 			<div className='d-flex justify-content-center mt-5'>
 				<Spinner
@@ -19,7 +24,7 @@ export const GroupListPage = memo(() => {
 
 	return (
 		<Row xxl={4}>
-			{groups.map((group) => (
+			{contactsStore.groups.map((group) => (
 				<Col key={group.id}>
 					<GroupContactsCard
 						groupContacts={group}

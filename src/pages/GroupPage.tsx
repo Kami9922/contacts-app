@@ -1,18 +1,28 @@
-import { memo } from 'react'
+import { observer } from 'mobx-react-lite'
+import { useEffect } from 'react'
 import { Alert, Col, Row } from 'react-bootstrap'
 import { useParams } from 'react-router-dom'
 import { GroupContactsCard } from 'src/components/GroupContactsCard'
 import { ContactCard } from 'src/components/ContactCard'
-import { useGetContactsQuery, useGetGroupsQuery } from 'src/store/contacts/api'
+import { contactsStore } from '../store/contactsStore'
 
-export const GroupPage = memo(() => {
+export const GroupPage = observer(() => {
 	const { groupId } = useParams<{ groupId: string }>()
-	const { data: contacts = [] } = useGetContactsQuery()
-	const { data: groups = [] } = useGetGroupsQuery()
 
-	const currentGroup = groups.find((g) => g.id === groupId)
+	useEffect(() => {
+		if (contactsStore.groups.length === 0 && !contactsStore.groupsLoading) {
+			contactsStore.fetchGroups()
+		}
+		if (contactsStore.contacts.length === 0 && !contactsStore.contactsLoading) {
+			contactsStore.fetchContacts()
+		}
+	}, [])
+
+	const currentGroup = contactsStore.groups.find((g) => g.id === groupId)
 	const groupContacts = currentGroup
-		? contacts.filter((contact) => currentGroup.contactIds.includes(contact.id))
+		? contactsStore.contacts.filter((contact) =>
+				currentGroup.contactIds.includes(contact.id)
+		  )
 		: []
 
 	if (!currentGroup) {

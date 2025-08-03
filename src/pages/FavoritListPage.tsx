@@ -1,18 +1,23 @@
-import { memo } from 'react'
-import { Col, Row, Alert, Spinner } from 'react-bootstrap'
+import { observer } from 'mobx-react-lite'
+import { useEffect } from 'react'
+import { Col, Row, Spinner, Alert } from 'react-bootstrap'
 import { ContactCard } from 'src/components/ContactCard'
-import {
-	useGetContactsQuery,
-	useGetInitialFavoritesQuery,
-} from '../store/contacts/api'
+import { contactsStore } from '../store/contactsStore'
 
-export const FavoritListPage = memo(() => {
-	const { data: contacts = [], isLoading: contactsLoading } =
-		useGetContactsQuery()
-	const { data: favoriteIds = [], isLoading: favoritesLoading } =
-		useGetInitialFavoritesQuery()
+export const FavoritListPage = observer(() => {
+	useEffect(() => {
+		if (contactsStore.contacts.length === 0 && !contactsStore.contactsLoading) {
+			contactsStore.fetchContacts()
+		}
+		if (
+			contactsStore.favoriteIds.length === 0 &&
+			!contactsStore.favoritesLoading
+		) {
+			contactsStore.fetchFavorites()
+		}
+	}, [])
 
-	if (contactsLoading || favoritesLoading) {
+	if (contactsStore.contactsLoading || contactsStore.favoritesLoading) {
 		return (
 			<div className='d-flex justify-content-center mt-5'>
 				<Spinner
@@ -23,9 +28,17 @@ export const FavoritListPage = memo(() => {
 		)
 	}
 
-	const favoriteContacts = contacts.filter((contact) =>
-		favoriteIds.includes(contact.id)
-	)
+	if (contactsStore.favoritesError) {
+		return (
+			<Alert
+				variant='danger'
+				className='mt-3'>
+				Ошибка загрузки избранных контактов
+			</Alert>
+		)
+	}
+
+	const favoriteContacts = contactsStore.favoriteContacts
 
 	if (favoriteContacts.length === 0) {
 		return <Alert variant='info'>Нет избранных контактов</Alert>

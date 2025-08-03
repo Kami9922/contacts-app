@@ -1,45 +1,28 @@
-import { memo, useState } from 'react'
+import { observer } from 'mobx-react-lite'
+import { useEffect, useState } from 'react'
 import { Col, Row, Spinner } from 'react-bootstrap'
 import { ContactCard } from 'src/components/ContactCard'
 import { FilterForm } from 'src/components/FilterForm'
-import { useGetContactsQuery, useGetGroupsQuery } from '../store/contacts/api'
+import { contactsStore } from '../store/contactsStore'
 
-export const ContactListPage = memo(() => {
-	const [filters, setFilters] = useState<{
-		name?: string
-		groupId?: string | null
-	}>({})
+export const ContactListPage = observer(() => {
+	const [initialized, setInitialized] = useState(false)
 
-	const { data: contacts = [], isLoading: contactsLoading } =
-		useGetContactsQuery()
-	const { data: groups = [], isLoading: groupsLoading } = useGetGroupsQuery()
+	useEffect(() => {
+		if (!initialized) {
+			contactsStore.fetchContacts()
+			contactsStore.fetchGroups()
+			setInitialized(true)
+		}
+	}, [initialized])
 
 	const handleSubmit = (
 		fv: Partial<{ name: string; groupId: string | null }>
 	) => {
-		setFilters({
-			name: fv.name,
-			groupId: fv.groupId,
-		})
+		contactsStore.setFilter(fv.name, fv.groupId ?? null)
 	}
 
-	const filteredContacts = contacts.filter((contact) => {
-		const nameMatch = filters.name
-			? contact.name.toLowerCase().includes(filters.name.toLowerCase())
-			: true
-
-		const groupMatch = filters.groupId
-			? groups.some(
-					(group) =>
-						group.id === filters.groupId &&
-						group.contactIds.includes(contact.id)
-			  )
-			: true
-
-		return nameMatch && groupMatch
-	})
-
-	if (contactsLoading || groupsLoading) {
+	if (contactsStore.contactsLoading || contactsStore.groupsLoading) {
 		return (
 			<div className='d-flex justify-content-center mt-5'>
 				<Spinner
@@ -54,8 +37,8 @@ export const ContactListPage = memo(() => {
 		<Row xxl={1}>
 			<Col className='mb-3'>
 				<FilterForm
-					groupContactsList={groups}
-					initialValues={filters}
+					groupContactsList={contactsStore.groups}
+					initialValues={contactsStore.filterParams}
 					onSubmit={handleSubmit}
 				/>
 			</Col>
@@ -63,7 +46,7 @@ export const ContactListPage = memo(() => {
 				<Row
 					xxl={4}
 					className='g-4'>
-					{filteredContacts.map((contact) => (
+					{contactsStore.filteredContacts.map((contact) => (
 						<Col key={contact.id}>
 							<ContactCard
 								contact={contact}
